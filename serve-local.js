@@ -65,8 +65,7 @@ peerServer.on('disconnect', (client) => {
   console.log(`PeerJS client disconnected: ${client.getId()}`);
 });
 
-// Mount PeerJS server
-server.on('upgrade', peerServer.on('upgrade'));
+// Mount PeerJS server on the HTTP server
 peerServer.install(server, { path: '/peerjs' });
 
 server.listen(PORT, '0.0.0.0', () => {
