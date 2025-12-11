@@ -21,7 +21,8 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "peer": "^0.6.1"
+    "peer": "^0.6.1",
+    "express": "^4.18.2"
   },
   "devDependencies": {}
 }
