@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node serve-local.js",
     "dev": "npx serve . -l 3000 --cors",
-    "start-local": "node serve-local.js",
-    "prod-start": "concurrently \"node serve-local.js\" \"node peerjs-server.js\""
+    "start-local": "node serve-local.js"
   },
   "keywords": [
     "video-call",
@@ -22,9 +21,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "peer": "^0.6.1",
-    "express": "^4.18.2",
-    "concurrently": "^8.2.2"
+    "peer": "^0.6.1"
   },
   "devDependencies": {}
 }

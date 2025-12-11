@@ -1,6 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { PeerServer } = require('peer');
 
 const PORT = process.env.PORT || 3000;
 const ROOT = process.cwd();
@@ -49,8 +50,28 @@ const server = http.createServer((req, res) => {
   }
 });
 
-server.listen(PORT, () => {
+// Attach PeerJS server to handle WebRTC signaling
+const peerServer = PeerServer({
+  debug: 3,
+  path: '/peerjs',
+  proxied: true // Important for Render and other proxies
+});
+
+peerServer.on('connection', (client) => {
+  console.log(`PeerJS client connected: ${client.getId()}`);
+});
+
+peerServer.on('disconnect', (client) => {
+  console.log(`PeerJS client disconnected: ${client.getId()}`);
+});
+
+// Mount PeerJS server
+server.on('upgrade', peerServer.on('upgrade'));
+peerServer.install(server, { path: '/peerjs' });
+
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`Serving ${ROOT} at http://localhost:${PORT}`);
+  console.log(`PeerJS server available at http://localhost:${PORT}/peerjs`);
 });
 
 process.on('SIGINT', () => {

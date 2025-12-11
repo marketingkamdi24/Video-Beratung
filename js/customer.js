@@ -64,16 +64,16 @@ class CustomerInterface {
     }
 
     initPeer() {
-        // Determine PeerJS server based on environment
-        const isProd = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+        // Determine if running on production or localhost
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        
+        // Configure PeerJS - use local server path for both dev and prod
         const peerConfig = {
             debug: 2,
-            ...(isProd && {
-                host: window.location.hostname,
-                port: 443,
-                secure: true,
-                path: '/peerjs'
-            })
+            host: window.location.hostname,
+            port: window.location.port || (window.location.protocol === 'https:' ? 443 : 80),
+            secure: window.location.protocol === 'https:',
+            path: '/peerjs'
         };
         
         // Initialize PeerJS
