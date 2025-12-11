@@ -64,8 +64,20 @@ class CustomerInterface {
     }
 
     initPeer() {
+        // Determine PeerJS server based on environment
+        const isProd = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+        const peerConfig = {
+            debug: 2,
+            ...(isProd && {
+                host: window.location.hostname,
+                port: 443,
+                secure: true,
+                path: '/peerjs'
+            })
+        };
+        
         // Initialize PeerJS
-        this.peer = new Peer();
+        this.peer = new Peer(peerConfig);
 
         this.peer.on('open', (id) => {
             console.log('Customer Peer ID:', id);

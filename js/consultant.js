@@ -63,7 +63,20 @@ class ConsultantDashboard {
     initPeer() {
         // Initialize PeerJS with a fixed consultant ID so customers can call without entering an ID
         const CONSULTANT_ID = 'consultant';
-        this.peer = new Peer(CONSULTANT_ID);
+        
+        // Determine PeerJS server based on environment
+        const isProd = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+        const peerConfig = {
+            debug: 2,
+            ...(isProd && {
+                host: window.location.hostname,
+                port: 443,
+                secure: true,
+                path: '/peerjs'
+            })
+        };
+        
+        this.peer = new Peer(CONSULTANT_ID, peerConfig);
 
         this.peer.on('open', (id) => {
             console.log('Consultant Peer ID:', id);
