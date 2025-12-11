@@ -1,0 +1,16 @@
+# Render Blueprint Configuration
+# See https://render.com/docs/blueprint-spec for more information
+
+services:
+  - type: web
+    name: call-p
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+    healthCheckPath: /

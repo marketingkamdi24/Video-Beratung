@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultant Dashboard - Call-P</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-left">
+                <a href="index.html" class="back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back</span>
+                </a>
+                <div class="app-logo">
+                    <i class="fas fa-headset"></i>
+                    <h1>Call-P</h1>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="status-indicator">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">Connecting...</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <section class="call-section">
+                <div class="video-container" id="videoContainer">
+                    <div class="video-placeholder" id="videoPlaceholder">
+                        <i class="fas fa-video"></i>
+                        <p>Waiting for incoming calls...</p>
+                    </div>
+                    <video id="remoteVideo" autoplay playsinline style="display: none;"></video>
+                    <video id="localVideo" autoplay playsinline muted style="display: none;"></video>
+                    <div class="call-info" id="callInfo" style="display: none;">
+                        <i class="fas fa-user"></i>
+                        <span class="caller-name" id="callerName">Customer</span>
+                        <span class="call-timer" id="callTimer">00:00</span>
+                    </div>
+                </div>
+
+                <div class="call-controls" id="callControls" style="display: none;">
+                    <button class="control-btn secondary" id="toggleMic" title="Toggle Microphone">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button class="control-btn secondary" id="toggleVideo" title="Toggle Video">
+                        <i class="fas fa-video"></i>
+                    </button>
+                    <button class="control-btn secondary" id="toggleScreen" title="Share Screen">
+                        <i class="fas fa-desktop"></i>
+                    </button>
+                    <button class="control-btn danger" id="endCall" title="End Call">
+                        <i class="fas fa-phone-slash"></i>
+                    </button>
+                </div>
+            </section>
+
+            <aside class="side-panel">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3><i class="fas fa-id-badge"></i> Your Consultant ID</h3>
+                    </div>
+                    <div class="panel-content">
+                        <div class="id-display">
+                            <p class="id-label">Share this ID with customers to receive calls</p>
+                            <div class="id-value">
+                                <span id="peerId">Generating...</span>
+                                <button class="copy-btn" id="copyId" title="Copy ID">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3><i class="fas fa-phone-volume"></i> Incoming Calls</h3>
+                        <span class="panel-badge" id="queueCount">0</span>
+                    </div>
+                    <div class="panel-content">
+                        <div class="queue-list" id="queueList">
+                            <div class="empty-queue">
+                                <i class="fas fa-inbox"></i>
+                                <p>No incoming calls</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3><i class="fas fa-history"></i> Call History</h3>
+                    </div>
+                    <div class="panel-content">
+                        <div class="queue-list" id="callHistory">
+                            <div class="empty-queue">
+                                <i class="fas fa-clock"></i>
+                                <p>No recent calls</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- Incoming Call Modal -->
+    <div class="modal-overlay hidden" id="incomingCallModal">
+        <div class="incoming-call-modal">
+            <div class="caller-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <h2 id="incomingCallerName">Customer</h2>
+            <p id="incomingCallType">Incoming video call...</p>
+            <div class="modal-actions">
+                <button class="modal-btn reject" id="rejectCall" title="Reject">
+                    <i class="fas fa-phone-slash"></i>
+                </button>
+                <button class="modal-btn accept" id="acceptCall" title="Accept">
+                    <i class="fas fa-phone"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification hidden" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notificationText">Notification message</span>
+    </div>
+
+    <script src="js/consultant.js"></script>
+</body>
+</html>

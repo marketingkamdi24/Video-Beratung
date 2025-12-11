@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Support - Call-P</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-left">
+                <a href="index.html" class="back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back</span>
+                </a>
+                <div class="app-logo">
+                    <i class="fas fa-headset"></i>
+                    <h1>Call-P</h1>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="status-indicator">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">Ready</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <section class="call-section">
+                <div class="video-container" id="videoContainer">
+                    <!-- Pre-call state -->
+                    <div class="video-placeholder" id="preCallScreen">
+                        <i class="fas fa-headset"></i>
+                        <p>Connect with a consultant for instant support</p>
+                    </div>
+
+                    <!-- Connecting state -->
+                    <div class="waiting-screen" id="connectingScreen" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <h3>Connecting...</h3>
+                        <p>Please wait while we connect you to the consultant</p>
+                    </div>
+
+                    <!-- Waiting for answer state -->
+                    <div class="waiting-screen" id="waitingScreen" style="display: none;">
+                        <i class="fas fa-phone-volume"></i>
+                        <h3>Calling consultant...</h3>
+                        <p>Waiting for the consultant to answer</p>
+                    </div>
+
+                    <!-- Call ended state -->
+                    <div class="call-ended" id="callEndedScreen" style="display: none;">
+                        <i class="fas fa-phone-slash"></i>
+                        <h3>Call Ended</h3>
+                        <p id="callEndedMessage">The call has ended</p>
+                        <button id="newCallBtn">Start New Call</button>
+                    </div>
+
+                    <!-- Active call state -->
+                    <video id="remoteVideo" autoplay playsinline style="display: none;"></video>
+                    <video id="localVideo" autoplay playsinline muted style="display: none;"></video>
+                    <div class="call-info" id="callInfo" style="display: none;">
+                        <i class="fas fa-user-tie"></i>
+                        <span class="caller-name" id="consultantName">Consultant</span>
+                        <span class="call-timer" id="callTimer">00:00</span>
+                    </div>
+                </div>
+
+                <!-- Pre-call controls -->
+                <div class="call-controls" id="preCallControls" style="display: none;">
+                    <button class="control-btn danger" id="cancelCall" title="Cancel Call">
+                        <i class="fas fa-phone-slash"></i>
+                    </button>
+                </div>
+
+                <!-- In-call controls -->
+                <div class="call-controls" id="callControls" style="display: none;">
+                    <button class="control-btn secondary" id="toggleMic" title="Toggle Microphone">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button class="control-btn secondary" id="toggleVideo" title="Toggle Video">
+                        <i class="fas fa-video"></i>
+                    </button>
+                    <button class="control-btn danger" id="endCall" title="End Call">
+                        <i class="fas fa-phone-slash"></i>
+                    </button>
+                </div>
+            </section>
+
+            <aside class="side-panel">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3><i class="fas fa-phone-alt"></i> Connect to Consultant</h3>
+                    </div>
+                    <div class="panel-content">
+                        <div class="connect-form" id="connectForm">
+                            <div class="form-group">
+                                <label for="customerName">Your Name</label>
+                                <input type="text" id="customerName" placeholder="Enter your name" maxlength="50">
+                            </div>
+                            <!-- Consultant ID removed for direct one-button calling -->
+                            <div class="form-group">
+                                <label>Call Type</label>
+                                <div class="call-type-selector">
+                                    <button class="call-type-btn selected" data-type="video" id="videoCallType">
+                                        <i class="fas fa-video"></i>
+                                        <span>Video Call</span>
+                                    </button>
+                                    <button class="call-type-btn" data-type="audio" id="audioCallType">
+                                        <i class="fas fa-phone-alt"></i>
+                                        <span>Voice Call</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <button class="connect-btn" id="startCall">
+                                <i class="fas fa-phone"></i>
+                                <span>Start Call</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3><i class="fas fa-info-circle"></i> How It Works</h3>
+                    </div>
+                    <div class="panel-content">
+                        <div class="how-it-works">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h4>Enter Details</h4>
+                                    <p>Enter your name and the consultant's ID</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h4>Choose Call Type</h4>
+                                    <p>Select video or voice call</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h4>Start Call</h4>
+                                    <p>Click to connect instantly</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification hidden" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notificationText">Notification message</span>
+    </div>
+
+    <script src="js/customer.js"></script>
+
+    <style>
+        .how-it-works {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .step-content h4 {
+            font-size: 0.9375rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-content p {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</body>
+</html>
