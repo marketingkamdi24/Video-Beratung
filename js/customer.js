@@ -67,6 +67,8 @@ class CustomerInterface {
         this.chatMessages = document.getElementById('chatMessages');
         this.chatInput = document.getElementById('chatInput');
         this.sendMessageBtn = document.getElementById('sendMessageBtn');
+        this.fileInput = document.getElementById('fileInput');
+        this.attachFileBtn = document.getElementById('attachFileBtn');
     }
 
     initPeer() {
@@ -146,6 +148,14 @@ class CustomerInterface {
                     this.sendChatMessage();
                 }
             });
+        }
+
+        // File upload event listeners
+        if (this.attachFileBtn) {
+            this.attachFileBtn.addEventListener('click', () => this.fileInput.click());
+        }
+        if (this.fileInput) {
+            this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
         }
     }
 
@@ -554,6 +564,8 @@ class CustomerInterface {
             this.dataConnection.on('data', (data) => {
                 if (data.type === 'chat-message') {
                     this.addChatMessage(data.message, 'received');
+                } else if (data.type === 'file') {
+                    this.addFileMessage(data, 'received');
                 }
             });
         }
@@ -600,6 +612,98 @@ class CustomerInterface {
                 <p>Nachrichten erscheinen hier</p>
             </div>
         `;
+    }
+
+    handleFileSelect(event) {
+        const files = event.target.files;
+        if (!files || files.length === 0) return;
+
+        for (const file of files) {
+            if (file.size > 10 * 1024 * 1024) {
+                this.showNotification(`Datei "${file.name}" ist zu groß (max. 10MB)`, 'error');
+                continue;
+            }
+            this.sendFile(file);
+        }
+        this.fileInput.value = '';
+    }
+
+    sendFile(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const fileData = {
+                type: 'file',
+                fileName: file.name,
+                fileType: file.type,
+                fileSize: file.size,
+                data: e.target.result
+            };
+
+            if (this.dataConnection && this.dataConnection.open) {
+                this.dataConnection.send(fileData);
+                this.addFileMessage(fileData, 'sent');
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    addFileMessage(fileData, type) {
+        const emptyState = this.chatMessages.querySelector('.chat-empty');
+        if (emptyState) {
+            emptyState.remove();
+        }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-file ${type}`;
+
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+        const fileSize = this.formatFileSize(fileData.fileSize);
+
+        if (fileData.fileType && fileData.fileType.startsWith('image/')) {
+            messageDiv.innerHTML = `
+                <div class="chat-file-preview">
+                    <img src="${fileData.data}" alt="${fileData.fileName}" onclick="window.open('${fileData.data}', '_blank')">
+                </div>
+                <span class="message-time">${timeStr}</span>
+            `;
+        } else {
+            const icon = this.getFileIcon(fileData.fileName);
+            messageDiv.innerHTML = `
+                <a href="${fileData.data}" download="${fileData.fileName}" class="chat-file-doc">
+                    <i class="fas ${icon}"></i>
+                    <div class="chat-file-doc-info">
+                        <span class="chat-file-doc-name">${fileData.fileName}</span>
+                        <span class="chat-file-doc-size">${fileSize}</span>
+                    </div>
+                </a>
+                <span class="message-time">${timeStr}</span>
+            `;
+        }
+
+        this.chatMessages.appendChild(messageDiv);
+        this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+    }
+
+    getFileIcon(fileName) {
+        const ext = fileName.split('.').pop().toLowerCase();
+        const icons = {
+            'pdf': 'fa-file-pdf',
+            'doc': 'fa-file-word',
+            'docx': 'fa-file-word',
+            'xls': 'fa-file-excel',
+            'xlsx': 'fa-file-excel',
+            'txt': 'fa-file-alt',
+            'zip': 'fa-file-archive',
+            'rar': 'fa-file-archive'
+        };
+        return icons[ext] || 'fa-file';
+    }
+
+    formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
     }
 }
 

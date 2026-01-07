@@ -58,6 +58,14 @@ class ConsultantDashboard {
         // Notification
         this.notification = document.getElementById('notification');
         this.notificationText = document.getElementById('notificationText');
+
+        // Chat elements
+        this.chatPanel = document.getElementById('chatPanel');
+        this.chatMessages = document.getElementById('chatMessages');
+        this.chatInput = document.getElementById('chatInput');
+        this.sendMessageBtn = document.getElementById('sendMessageBtn');
+        this.fileInput = document.getElementById('fileInput');
+        this.attachFileBtn = document.getElementById('attachFileBtn');
     }
 
     initPeer() {
@@ -91,11 +99,18 @@ class ConsultantDashboard {
         });
 
         this.peer.on('connection', (conn) => {
+            // Store data connection for chat
+            this.dataConnection = conn;
+            
             conn.on('data', (data) => {
                 console.log('Received data:', data);
                 if (data.type === 'caller-info') {
                     // Store caller info for the incoming call
                     this.updateCallerInfo(conn.peer, data);
+                } else if (data.type === 'chat-message') {
+                    this.addChatMessage(data.message, 'received');
+                } else if (data.type === 'file') {
+                    this.addFileMessage(data, 'received');
                 }
             });
         });
@@ -125,6 +140,26 @@ class ConsultantDashboard {
         // Modal buttons
         this.acceptCallBtn.addEventListener('click', () => this.acceptCall());
         this.rejectCallBtn.addEventListener('click', () => this.rejectCall());
+
+        // Chat event listeners
+        if (this.sendMessageBtn) {
+            this.sendMessageBtn.addEventListener('click', () => this.sendChatMessage());
+        }
+        if (this.chatInput) {
+            this.chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.sendChatMessage();
+                }
+            });
+        }
+
+        // File upload event listeners
+        if (this.attachFileBtn) {
+            this.attachFileBtn.addEventListener('click', () => this.fileInput.click());
+        }
+        if (this.fileInput) {
+            this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+        }
     }
 
     updateStatus(status, text) {
@@ -249,6 +284,11 @@ class ConsultantDashboard {
                 // Start call timer
                 this.startCallTimer();
                 this.updateStatus('busy', 'In call');
+
+                // Show chat panel automatically when call is active
+                if (this.chatPanel) {
+                    this.chatPanel.style.display = 'flex';
+                }
             });
 
             callInfo.call.on('close', () => {
@@ -497,6 +537,18 @@ class ConsultantDashboard {
         this.callInfo.style.display = 'none';
         this.callControls.style.display = 'none';
 
+        // Hide chat panel and reset chat
+        if (this.chatPanel) {
+            this.chatPanel.style.display = 'none';
+            this.clearChat();
+        }
+
+        // Close data connection
+        if (this.dataConnection) {
+            this.dataConnection.close();
+            this.dataConnection = null;
+        }
+
         this.currentCall = null;
         this.callDuration = 0;
         this.isMuted = false;
@@ -658,6 +710,142 @@ class ConsultantDashboard {
         setTimeout(() => {
             this.notification.classList.add('hidden');
         }, 4000);
+    }
+
+    // Chat functions
+    sendChatMessage() {
+        const message = this.chatInput.value.trim();
+        if (message && this.dataConnection && this.dataConnection.open) {
+            this.dataConnection.send({
+                type: 'chat-message',
+                message: message
+            });
+            this.addChatMessage(message, 'sent');
+            this.chatInput.value = '';
+        }
+    }
+
+    addChatMessage(message, type) {
+        // Remove empty state if present
+        const emptyState = this.chatMessages.querySelector('.chat-empty');
+        if (emptyState) {
+            emptyState.remove();
+        }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${type}`;
+        
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+        
+        messageDiv.innerHTML = `
+            ${message}
+            <span class="message-time">${timeStr}</span>
+        `;
+        
+        this.chatMessages.appendChild(messageDiv);
+        this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+    }
+
+    clearChat() {
+        this.chatMessages.innerHTML = `
+            <div class="chat-empty">
+                <i class="fas fa-comment-dots"></i>
+                <p>Nachrichten erscheinen hier</p>
+            </div>
+        `;
+    }
+
+    handleFileSelect(event) {
+        const files = event.target.files;
+        if (!files || files.length === 0) return;
+
+        for (const file of files) {
+            if (file.size > 10 * 1024 * 1024) {
+                this.showNotification(`Datei "${file.name}" ist zu groß (max. 10MB)`, 'error');
+                continue;
+            }
+            this.sendFile(file);
+        }
+        this.fileInput.value = '';
+    }
+
+    sendFile(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const fileData = {
+                type: 'file',
+                fileName: file.name,
+                fileType: file.type,
+                fileSize: file.size,
+                data: e.target.result
+            };
+
+            if (this.dataConnection && this.dataConnection.open) {
+                this.dataConnection.send(fileData);
+                this.addFileMessage(fileData, 'sent');
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    addFileMessage(fileData, type) {
+        const emptyState = this.chatMessages.querySelector('.chat-empty');
+        if (emptyState) {
+            emptyState.remove();
+        }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-file ${type}`;
+
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+        const fileSize = this.formatFileSize(fileData.fileSize);
+
+        if (fileData.fileType && fileData.fileType.startsWith('image/')) {
+            messageDiv.innerHTML = `
+                <div class="chat-file-preview">
+                    <img src="${fileData.data}" alt="${fileData.fileName}" onclick="window.open('${fileData.data}', '_blank')">
+                </div>
+                <span class="message-time">${timeStr}</span>
+            `;
+        } else {
+            const icon = this.getFileIcon(fileData.fileName);
+            messageDiv.innerHTML = `
+                <a href="${fileData.data}" download="${fileData.fileName}" class="chat-file-doc">
+                    <i class="fas ${icon}"></i>
+                    <div class="chat-file-doc-info">
+                        <span class="chat-file-doc-name">${fileData.fileName}</span>
+                        <span class="chat-file-doc-size">${fileSize}</span>
+                    </div>
+                </a>
+                <span class="message-time">${timeStr}</span>
+            `;
+        }
+
+        this.chatMessages.appendChild(messageDiv);
+        this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+    }
+
+    getFileIcon(fileName) {
+        const ext = fileName.split('.').pop().toLowerCase();
+        const icons = {
+            'pdf': 'fa-file-pdf',
+            'doc': 'fa-file-word',
+            'docx': 'fa-file-word',
+            'xls': 'fa-file-excel',
+            'xlsx': 'fa-file-excel',
+            'txt': 'fa-file-alt',
+            'zip': 'fa-file-archive',
+            'rar': 'fa-file-archive'
+        };
+        return icons[ext] || 'fa-file';
+    }
+
+    formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
     }
 }
 

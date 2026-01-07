@@ -1210,6 +1210,126 @@ body {
     background: var(--primary-dark);
 }
 
+.chat-file-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: var(--radius-md);
+    background: var(--background-color);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.chat-file-btn:hover {
+    background: var(--border-color);
+    color: var(--primary-color);
+}
+
+/* File message styles */
+.chat-file {
+    max-width: 85%;
+    padding: 0.5rem;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+}
+
+.chat-file.sent {
+    align-self: flex-end;
+    background: var(--primary-color);
+}
+
+.chat-file.received {
+    align-self: flex-start;
+    background: var(--background-color);
+}
+
+.chat-file-preview {
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    margin-bottom: 0.25rem;
+}
+
+.chat-file-preview img {
+    max-width: 200px;
+    max-height: 200px;
+    display: block;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.chat-file-preview img:hover {
+    opacity: 0.9;
+}
+
+.chat-file-doc {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: rgba(255,255,255,0.1);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.2s;
+}
+
+.chat-file.sent .chat-file-doc {
+    color: white;
+}
+
+.chat-file.received .chat-file-doc {
+    background: white;
+    color: var(--text-primary);
+}
+
+.chat-file-doc:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.chat-file.received .chat-file-doc:hover {
+    background: var(--border-color);
+}
+
+.chat-file-doc i {
+    font-size: 1.5rem;
+}
+
+.chat-file-doc-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.chat-file-doc-name {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+.chat-file-doc-size {
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
+.chat-file .message-time {
+    font-size: 0.7rem;
+    opacity: 0.7;
+    margin-top: 0.25rem;
+    display: block;
+    text-align: right;
+}
+
+.chat-file.sent .message-time {
+    color: rgba(255,255,255,0.8);
+}
+
 @media (max-width: 768px) {
     .chat-panel {
         height: 250px;
