@@ -278,6 +278,14 @@ class ConsultantDashboard {
             this.localVideo.srcObject = this.localStream;
             this.localVideo.style.display = 'block';
 
+            // Show controls immediately after accepting
+            this.callControls.style.display = 'flex';
+            this.callInfo.style.display = 'flex';
+            this.callerName.textContent = callInfo.name;
+            if (this.chatPanel) this.chatPanel.style.display = 'flex';
+            this.showProductPanel();
+            console.log('Call accepted - controls shown');
+
             callInfo.call.on('stream', (remoteStream) => {
                 console.log('Received remote stream');
                 this.remoteStream = remoteStream;
