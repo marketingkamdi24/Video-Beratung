@@ -68,6 +68,26 @@
                         <span class="caller-name" id="consultantName">Consultant</span>
                         <span class="call-timer" id="callTimer">00:00</span>
                     </div>
+
+                    <!-- Shared Pointer from Consultant -->
+                    <div class="shared-pointer" id="sharedPointer" style="display: none;">
+                        <div class="shared-pointer-icon"></div>
+                        <span class="shared-pointer-label" id="pointerLabel">Berater</span>
+                    </div>
+
+                    <!-- Product Card Overlay -->
+                    <div class="product-card-overlay" id="productCardOverlay" style="display: none;">
+                        <button class="product-card-close" id="closeProductCard">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <img class="product-card-image" id="productCardImage" src="" alt="Product">
+                        <div class="product-card-content">
+                            <h3 class="product-card-title" id="productCardTitle">Produktname</h3>
+                            <div class="product-card-price" id="productCardPrice">0,00 €</div>
+                            <p class="product-card-description" id="productCardDescription">Beschreibung</p>
+                            <div class="product-card-features" id="productCardFeatures"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Pre-call controls -->

@@ -69,6 +69,19 @@ class CustomerInterface {
         this.sendMessageBtn = document.getElementById('sendMessageBtn');
         this.fileInput = document.getElementById('fileInput');
         this.attachFileBtn = document.getElementById('attachFileBtn');
+
+        // Shared pointer elements
+        this.sharedPointer = document.getElementById('sharedPointer');
+        this.pointerLabel = document.getElementById('pointerLabel');
+
+        // Product card elements
+        this.productCardOverlay = document.getElementById('productCardOverlay');
+        this.productCardImage = document.getElementById('productCardImage');
+        this.productCardTitle = document.getElementById('productCardTitle');
+        this.productCardPrice = document.getElementById('productCardPrice');
+        this.productCardDescription = document.getElementById('productCardDescription');
+        this.productCardFeatures = document.getElementById('productCardFeatures');
+        this.closeProductCardBtn = document.getElementById('closeProductCard');
     }
 
     initPeer() {
@@ -156,6 +169,11 @@ class CustomerInterface {
         }
         if (this.fileInput) {
             this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+        }
+
+        // Product card close button
+        if (this.closeProductCardBtn) {
+            this.closeProductCardBtn.addEventListener('click', () => this.hideProductCard());
         }
     }
 
@@ -453,6 +471,10 @@ class CustomerInterface {
             this.clearChat();
         }
 
+        // Hide shared pointer and product card
+        this.hideSharedPointer();
+        this.hideProductCard();
+
         // Show call ended screen
         this.callEndedMessage.textContent = reason;
         this.showScreen('ended');
@@ -566,8 +588,61 @@ class CustomerInterface {
                     this.addChatMessage(data.message, 'received');
                 } else if (data.type === 'file') {
                     this.addFileMessage(data, 'received');
+                } else if (data.type === 'pointer-move') {
+                    this.showSharedPointer(data.x, data.y, data.name);
+                } else if (data.type === 'pointer-hide') {
+                    this.hideSharedPointer();
+                } else if (data.type === 'show-product') {
+                    this.showProductCard(data.product);
                 }
             });
+        }
+    }
+
+    // Shared pointer functions
+    showSharedPointer(x, y, name) {
+        if (this.sharedPointer) {
+            this.sharedPointer.style.display = 'block';
+            this.sharedPointer.style.left = x + '%';
+            this.sharedPointer.style.top = y + '%';
+            if (this.pointerLabel) {
+                this.pointerLabel.textContent = name || 'Berater';
+            }
+        }
+    }
+
+    hideSharedPointer() {
+        if (this.sharedPointer) {
+            this.sharedPointer.style.display = 'none';
+        }
+    }
+
+    // Product card functions
+    showProductCard(product) {
+        if (!this.productCardOverlay || !product) return;
+
+        if (this.productCardImage) {
+            this.productCardImage.src = product.image || 'https://via.placeholder.com/400x300?text=Produkt';
+            this.productCardImage.onerror = () => {
+                this.productCardImage.src = 'https://via.placeholder.com/400x300?text=Produkt';
+            };
+        }
+        if (this.productCardTitle) this.productCardTitle.textContent = product.name || 'Produkt';
+        if (this.productCardPrice) this.productCardPrice.textContent = product.price || '0,00 €';
+        if (this.productCardDescription) this.productCardDescription.textContent = product.description || '';
+        if (this.productCardFeatures && product.features) {
+            this.productCardFeatures.innerHTML = product.features.map(f => 
+                `<span class="product-feature-tag">${f}</span>`
+            ).join('');
+        }
+
+        this.productCardOverlay.style.display = 'block';
+        this.showNotification('Der Berater zeigt Ihnen ein Produkt', 'info');
+    }
+
+    hideProductCard() {
+        if (this.productCardOverlay) {
+            this.productCardOverlay.style.display = 'none';
         }
     }
 
