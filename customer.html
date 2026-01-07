@@ -68,26 +68,6 @@
                         <span class="caller-name" id="consultantName">Consultant</span>
                         <span class="call-timer" id="callTimer">00:00</span>
                     </div>
-
-                    <!-- Shared Pointer from Consultant -->
-                    <div class="shared-pointer" id="sharedPointer" style="display: none;">
-                        <div class="shared-pointer-icon"></div>
-                        <span class="shared-pointer-label" id="pointerLabel">Berater</span>
-                    </div>
-
-                    <!-- Product Card Overlay -->
-                    <div class="product-card-overlay" id="productCardOverlay" style="display: none;">
-                        <button class="product-card-close" id="closeProductCard">
-                            <i class="fas fa-times"></i>
-                        </button>
-                        <img class="product-card-image" id="productCardImage" src="" alt="Product">
-                        <div class="product-card-content">
-                            <h3 class="product-card-title" id="productCardTitle">Produktname</h3>
-                            <div class="product-card-price" id="productCardPrice">0,00 €</div>
-                            <p class="product-card-description" id="productCardDescription">Beschreibung</p>
-                            <div class="product-card-features" id="productCardFeatures"></div>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Pre-call controls -->
@@ -99,13 +79,16 @@
 
                 <!-- In-call controls -->
                 <div class="call-controls" id="callControls" style="display: none;">
-                    <button class="control-btn secondary" id="toggleMic" title="Toggle Microphone">
+                    <button class="control-btn secondary" id="toggleMic" title="Mikrofon ein/aus">
                         <i class="fas fa-microphone"></i>
                     </button>
-                    <button class="control-btn secondary" id="toggleVideo" title="Toggle Video">
+                    <button class="control-btn secondary" id="toggleVideo" title="Video ein/aus">
                         <i class="fas fa-video"></i>
                     </button>
-                    <button class="control-btn danger" id="endCall" title="End Call">
+                    <button class="control-btn secondary" id="toggleScreen" title="Bildschirm teilen">
+                        <i class="fas fa-desktop"></i>
+                    </button>
+                    <button class="control-btn danger" id="endCall" title="Anruf beenden">
                         <i class="fas fa-phone-slash"></i>
                     </button>
                 </div>
@@ -207,7 +190,7 @@
         <span id="notificationText">Notification message</span>
     </div>
 
-    <script src="js/customer.js?v=2"></script>
+    <script src="js/customer.js"></script>
 
     <style>
         .how-it-works {

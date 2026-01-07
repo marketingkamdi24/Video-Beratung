@@ -55,6 +55,7 @@ class CustomerInterface {
         this.callControls = document.getElementById('callControls');
         this.toggleMicBtn = document.getElementById('toggleMic');
         this.toggleVideoBtn = document.getElementById('toggleVideo');
+        this.toggleScreenBtn = document.getElementById('toggleScreen');
         this.endCallBtn = document.getElementById('endCall');
         this.cancelCallBtn = document.getElementById('cancelCall');
 
@@ -69,19 +70,6 @@ class CustomerInterface {
         this.sendMessageBtn = document.getElementById('sendMessageBtn');
         this.fileInput = document.getElementById('fileInput');
         this.attachFileBtn = document.getElementById('attachFileBtn');
-
-        // Shared pointer elements
-        this.sharedPointer = document.getElementById('sharedPointer');
-        this.pointerLabel = document.getElementById('pointerLabel');
-
-        // Product card elements
-        this.productCardOverlay = document.getElementById('productCardOverlay');
-        this.productCardImage = document.getElementById('productCardImage');
-        this.productCardTitle = document.getElementById('productCardTitle');
-        this.productCardPrice = document.getElementById('productCardPrice');
-        this.productCardDescription = document.getElementById('productCardDescription');
-        this.productCardFeatures = document.getElementById('productCardFeatures');
-        this.closeProductCardBtn = document.getElementById('closeProductCard');
     }
 
     initPeer() {
@@ -137,6 +125,7 @@ class CustomerInterface {
         // Call controls
         this.toggleMicBtn.addEventListener('click', () => this.toggleMicrophone());
         this.toggleVideoBtn.addEventListener('click', () => this.toggleVideo());
+        this.toggleScreenBtn.addEventListener('click', () => this.shareScreen());
         this.endCallBtn.addEventListener('click', () => this.endCall());
 
         // New call button
@@ -169,11 +158,6 @@ class CustomerInterface {
         }
         if (this.fileInput) {
             this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
-        }
-
-        // Product card close button
-        if (this.closeProductCardBtn) {
-            this.closeProductCardBtn.addEventListener('click', () => this.hideProductCard());
         }
     }
 
@@ -427,6 +411,62 @@ class CustomerInterface {
         }
     }
 
+    async shareScreen() {
+        try {
+            const screenStream = await navigator.mediaDevices.getDisplayMedia({
+                video: true
+            });
+
+            const screenTrack = screenStream.getVideoTracks()[0];
+            
+            // Replace video track in the peer connection
+            if (this.currentCall) {
+                const sender = this.currentCall.peerConnection
+                    .getSenders()
+                    .find(s => s.track && s.track.kind === 'video');
+                
+                if (sender) {
+                    await sender.replaceTrack(screenTrack);
+                }
+            }
+
+            // Update local video
+            this.localVideo.srcObject = screenStream;
+            this.toggleScreenBtn.classList.add('active');
+
+            // When screen sharing stops, revert to camera
+            screenTrack.onended = async () => {
+                try {
+                    const cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    const cameraTrack = cameraStream.getVideoTracks()[0];
+                    
+                    if (this.currentCall) {
+                        const sender = this.currentCall.peerConnection
+                            .getSenders()
+                            .find(s => s.track && s.track.kind === 'video');
+                        
+                        if (sender) {
+                            await sender.replaceTrack(cameraTrack);
+                        }
+                    }
+                    
+                    this.localVideo.srcObject = this.localStream;
+                    this.toggleScreenBtn.classList.remove('active');
+                } catch (e) {
+                    console.log('Could not restore camera:', e);
+                    this.toggleScreenBtn.classList.remove('active');
+                }
+            };
+
+            this.showNotification('Bildschirmfreigabe gestartet', 'success');
+        } catch (error) {
+            console.error('Screen sharing error:', error);
+            if (error.name !== 'NotAllowedError') {
+                this.showNotification('Bildschirmfreigabe fehlgeschlagen', 'error');
+            }
+        }
+    }
+
     endCall() {
         if (this.currentCall) {
             this.currentCall.close();
@@ -470,10 +510,6 @@ class CustomerInterface {
             this.chatPanel.style.display = 'none';
             this.clearChat();
         }
-
-        // Hide shared pointer and product card
-        this.hideSharedPointer();
-        this.hideProductCard();
 
         // Show call ended screen
         this.callEndedMessage.textContent = reason;
@@ -588,61 +624,8 @@ class CustomerInterface {
                     this.addChatMessage(data.message, 'received');
                 } else if (data.type === 'file') {
                     this.addFileMessage(data, 'received');
-                } else if (data.type === 'pointer-move') {
-                    this.showSharedPointer(data.x, data.y, data.name);
-                } else if (data.type === 'pointer-hide') {
-                    this.hideSharedPointer();
-                } else if (data.type === 'show-product') {
-                    this.showProductCard(data.product);
                 }
             });
-        }
-    }
-
-    // Shared pointer functions
-    showSharedPointer(x, y, name) {
-        if (this.sharedPointer) {
-            this.sharedPointer.style.display = 'block';
-            this.sharedPointer.style.left = x + '%';
-            this.sharedPointer.style.top = y + '%';
-            if (this.pointerLabel) {
-                this.pointerLabel.textContent = name || 'Berater';
-            }
-        }
-    }
-
-    hideSharedPointer() {
-        if (this.sharedPointer) {
-            this.sharedPointer.style.display = 'none';
-        }
-    }
-
-    // Product card functions
-    showProductCard(product) {
-        if (!this.productCardOverlay || !product) return;
-
-        if (this.productCardImage) {
-            this.productCardImage.src = product.image || 'https://via.placeholder.com/400x300?text=Produkt';
-            this.productCardImage.onerror = () => {
-                this.productCardImage.src = 'https://via.placeholder.com/400x300?text=Produkt';
-            };
-        }
-        if (this.productCardTitle) this.productCardTitle.textContent = product.name || 'Produkt';
-        if (this.productCardPrice) this.productCardPrice.textContent = product.price || '0,00 €';
-        if (this.productCardDescription) this.productCardDescription.textContent = product.description || '';
-        if (this.productCardFeatures && product.features) {
-            this.productCardFeatures.innerHTML = product.features.map(f => 
-                `<span class="product-feature-tag">${f}</span>`
-            ).join('');
-        }
-
-        this.productCardOverlay.style.display = 'block';
-        this.showNotification('Der Berater zeigt Ihnen ein Produkt', 'info');
-    }
-
-    hideProductCard() {
-        if (this.productCardOverlay) {
-            this.productCardOverlay.style.display = 'none';
         }
     }
 

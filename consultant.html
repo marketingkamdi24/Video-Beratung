@@ -55,9 +55,6 @@
                     <button class="control-btn secondary" id="toggleScreen" title="Share Screen">
                         <i class="fas fa-desktop"></i>
                     </button>
-                    <button class="control-btn secondary pointer-toggle-btn" id="togglePointer" title="Zeiger teilen">
-                        <i class="fas fa-mouse-pointer"></i>
-                    </button>
                     <button class="control-btn danger" id="endCall" title="End Call">
                         <i class="fas fa-phone-slash"></i>
                     </button>
@@ -75,13 +72,13 @@
                         </div>
                     </div>
                     <div class="chat-input-container">
-                        <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" multiple style="display: none;">
-                        <button class="chat-file-btn" id="attachFileBtn" title="Datei anhängen">
-                            <i class="fas fa-paperclip"></i>
-                        </button>
                         <input type="text" id="chatInput" placeholder="Nachricht eingeben..." autocomplete="off">
                         <button class="chat-send-btn" id="sendMessageBtn" title="Senden">
                             <i class="fas fa-paper-plane"></i>
+                        </button>
+                        <input type="file" id="fileInput" multiple style="display: none;">
+                        <button class="chat-attach-btn" id="attachFileBtn" title="Datei anhängen">
+                            <i class="fas fa-paperclip"></i>
                         </button>
                     </div>
                 </div>
@@ -133,21 +130,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Product Panel -->
-                <div class="product-panel" id="productPanel" style="display: none;">
-                    <div class="product-panel-header">
-                        <h3><i class="fas fa-box-open"></i> Produkte</h3>
-                    </div>
-                    <div class="product-list" id="productList">
-                        <!-- Demo products -->
-                    </div>
-                    <div style="padding: 0.5rem;">
-                        <button class="add-product-btn" id="addProductBtn">
-                            <i class="fas fa-plus"></i> Produkt hinzufügen
-                        </button>
-                    </div>
-                </div>
             </aside>
         </main>
     </div>
@@ -177,39 +159,6 @@
         <span id="notificationText">Notification message</span>
     </div>
 
-    <!-- Add Product Modal -->
-    <div class="modal-overlay hidden" id="addProductModal">
-        <div class="add-product-modal">
-            <h2><i class="fas fa-box-open"></i> Produkt hinzufügen</h2>
-            <form class="add-product-form" id="addProductForm">
-                <div class="form-group">
-                    <label>Produktname *</label>
-                    <input type="text" id="productName" placeholder="z.B. Kaminofen Milano" required>
-                </div>
-                <div class="form-group">
-                    <label>Preis *</label>
-                    <input type="text" id="productPrice" placeholder="z.B. 1.299,00 €" required>
-                </div>
-                <div class="form-group">
-                    <label>Bild-URL</label>
-                    <input type="text" id="productImage" placeholder="https://...">
-                </div>
-                <div class="form-group">
-                    <label>Beschreibung</label>
-                    <textarea id="productDescription" placeholder="Kurze Produktbeschreibung..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Features (kommagetrennt)</label>
-                    <input type="text" id="productFeatures" placeholder="z.B. 8kW, Stahl, A+">
-                </div>
-                <div class="add-product-form-actions">
-                    <button type="button" class="product-card-btn secondary" id="cancelAddProduct">Abbrechen</button>
-                    <button type="submit" class="product-card-btn primary">Hinzufügen</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script src="js/consultant.js?v=2"></script>
+    <script src="js/consultant.js"></script>
 </body>
 </html>
