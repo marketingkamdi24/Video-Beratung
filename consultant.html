@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consultant Dashboard - Call-P</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
@@ -72,13 +73,13 @@
                         </div>
                     </div>
                     <div class="chat-input-container">
+                        <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" multiple style="display: none;">
+                        <button class="chat-file-btn" id="attachFileBtn" title="Datei anhängen">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
                         <input type="text" id="chatInput" placeholder="Nachricht eingeben..." autocomplete="off">
                         <button class="chat-send-btn" id="sendMessageBtn" title="Senden">
                             <i class="fas fa-paper-plane"></i>
-                        </button>
-                        <input type="file" id="fileInput" multiple style="display: none;">
-                        <button class="chat-attach-btn" id="attachFileBtn" title="Datei anhängen">
-                            <i class="fas fa-paperclip"></i>
                         </button>
                     </div>
                 </div>

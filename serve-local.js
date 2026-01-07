@@ -56,6 +56,11 @@ app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
+// Route /agent to consultant.html
+app.get('/agent', (req, res) => {
+  res.sendFile(path.join(ROOT, 'consultant.html'));
+});
+
 // Start server
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Serving ${ROOT} at http://localhost:${PORT}`);
