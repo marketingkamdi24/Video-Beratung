@@ -61,6 +61,12 @@ class CustomerInterface {
         // Notification
         this.notification = document.getElementById('notification');
         this.notificationText = document.getElementById('notificationText');
+
+        // Chat elements
+        this.chatPanel = document.getElementById('chatPanel');
+        this.chatMessages = document.getElementById('chatMessages');
+        this.chatInput = document.getElementById('chatInput');
+        this.sendMessageBtn = document.getElementById('sendMessageBtn');
     }
 
     initPeer() {
@@ -126,6 +132,18 @@ class CustomerInterface {
             this.consultantIdInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     this.startCall();
+                }
+            });
+        }
+
+        // Chat event listeners
+        if (this.sendMessageBtn) {
+            this.sendMessageBtn.addEventListener('click', () => this.sendChatMessage());
+        }
+        if (this.chatInput) {
+            this.chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.sendChatMessage();
                 }
             });
         }
@@ -320,6 +338,12 @@ class CustomerInterface {
             this.startCallTimer();
             this.updateStatus('busy', 'In call');
 
+            // Show chat panel automatically when call is active
+            if (this.chatPanel) {
+                this.chatPanel.style.display = 'flex';
+                this.setupChatDataConnection();
+            }
+
             this.showNotification('Connected to consultant', 'success');
         });
 
@@ -412,6 +436,12 @@ class CustomerInterface {
         this.callInfo.style.display = 'none';
         this.callControls.style.display = 'none';
         this.preCallControls.style.display = 'none';
+
+        // Hide chat panel and reset chat
+        if (this.chatPanel) {
+            this.chatPanel.style.display = 'none';
+            this.clearChat();
+        }
 
         // Show call ended screen
         this.callEndedMessage.textContent = reason;
@@ -516,6 +546,60 @@ class CustomerInterface {
         setTimeout(() => {
             this.notification.classList.add('hidden');
         }, 4000);
+    }
+
+    // Chat functions
+    setupChatDataConnection() {
+        if (this.dataConnection) {
+            this.dataConnection.on('data', (data) => {
+                if (data.type === 'chat-message') {
+                    this.addChatMessage(data.message, 'received');
+                }
+            });
+        }
+    }
+
+    sendChatMessage() {
+        const message = this.chatInput.value.trim();
+        if (message && this.dataConnection && this.dataConnection.open) {
+            this.dataConnection.send({
+                type: 'chat-message',
+                message: message
+            });
+            this.addChatMessage(message, 'sent');
+            this.chatInput.value = '';
+        }
+    }
+
+    addChatMessage(message, type) {
+        // Remove empty state if present
+        const emptyState = this.chatMessages.querySelector('.chat-empty');
+        if (emptyState) {
+            emptyState.remove();
+        }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${type}`;
+        
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+        
+        messageDiv.innerHTML = `
+            ${message}
+            <span class="message-time">${timeStr}</span>
+        `;
+        
+        this.chatMessages.appendChild(messageDiv);
+        this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+    }
+
+    clearChat() {
+        this.chatMessages.innerHTML = `
+            <div class="chat-empty">
+                <i class="fas fa-comment-dots"></i>
+                <p>Nachrichten erscheinen hier</p>
+            </div>
+        `;
     }
 }
 
