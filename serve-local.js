@@ -56,9 +56,9 @@ app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
-// Route /agent to consultant.html
+// Route /agent to agent.html
 app.get('/agent', (req, res) => {
-  res.sendFile(path.join(ROOT, 'consultant.html'));
+  res.sendFile(path.join(ROOT, 'agent.html'));
 });
 
 // Start server
