@@ -289,7 +289,16 @@ class ConsultantDashboard {
                 this.callerName.textContent = callInfo.name;
                 this.startCallTimer();
                 this.updateStatus('busy', 'In call');
-                if (this.chatPanel) this.chatPanel.style.display = 'flex';
+                
+                // Show chat panel
+                console.log('Chat panel element:', this.chatPanel);
+                if (this.chatPanel) {
+                    this.chatPanel.style.display = 'flex';
+                    console.log('Chat panel displayed');
+                }
+                
+                // Show product panel
+                console.log('Product panel element:', this.productPanel);
                 this.showProductPanel();
             });
 
